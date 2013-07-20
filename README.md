@@ -16,7 +16,7 @@ tclip
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/a1.jpg "github")
 <br/><br/>
 如果按照从中间截取为 400 * 225 大小大图片。效果如下：<br/>
-![github](https://raw.github.com/exinnet/tclip/master/demo_images/a2.jpg "github")
+![github](https://raw.github.com/exinnet/tclip/master/demo_images/a2.JPG "github")
 <br/><br/>
 使用tclip裁剪图片效果如下：<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/a3.jpg "github")
