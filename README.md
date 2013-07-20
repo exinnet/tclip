@@ -12,6 +12,7 @@ tclip
 
 效果演示
 -----------------------
+###人物效果演示
 原图<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/a1.jpg "github")
 <br/><br/>
@@ -20,7 +21,16 @@ tclip
 <br/><br/>
 使用tclip裁剪图片效果如下：<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/a3.jpg "github")
-
+<br/>
+###景物效果演示
+原图<br/>
+![github](https://raw.github.com/exinnet/tclip/master/demo_images/b1.jpg "github")
+<br/><br/>
+如果按照从中间截取。效果如下：<br/>
+![github](https://raw.github.com/exinnet/tclip/master/demo_images/b2.JPG "github")
+<br/><br/>
+使用tclip裁剪图片效果如下：<br/>
+![github](https://raw.github.com/exinnet/tclip/master/demo_images/a3.jpg "github")
 <br/>
 
 安装步骤：
