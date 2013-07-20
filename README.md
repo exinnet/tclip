@@ -1,6 +1,13 @@
 tclip
 =====
 
+名字说明
+---------------
+T开头，代表是淘宝开源<br/>
+clip，读[klip]，译为裁剪。<br/>
+Tclip，意为淘宝开源的图片裁剪项目。<br/>
+<br/>
+
 概要
 ---------------
 用于图片裁剪。有以下特点： <br/>
@@ -30,7 +37,7 @@ tclip
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/b2.JPG "github")
 <br/><br/>
 使用tclip裁剪图片效果如下：<br/>
-![github](https://raw.github.com/exinnet/tclip/master/demo_images/a3.jpg "github")
+![github](https://raw.github.com/exinnet/tclip/master/demo_images/b3.jpg "github")
 <br/>
 
 安装步骤：
