@@ -189,13 +189,18 @@ int detectFace( Mat &img TSRMLS_DC){
 	if ( face_size > 0)
 	{
 		Y = faces[face_size -1].y - faces[face_size -1].height / 2;
-		return Y < 0 ? 0 : Y ;
+		if ( Y > img.size().height / 2 ) //fix
+		{
+			return -1;
+		} else {
+			return Y < 0 ? 0 : Y;
+		}
 	} else {
 		return -1;
 	}
 }
 
-int detectCharacter( Mat &img ){
+int detectCharacter( Mat &img TSRMLS_DC){
 	int start_x = 0; //特征点X坐标开始位置 
 	int end_x = 0; //特征点X坐标结束位置
 	int section_index = 0; //Y坐标段数字索引
@@ -219,8 +224,8 @@ int detectCharacter( Mat &img ){
 		return -1;
 	}
 
-	start_x = img.size().width / 5;
-	end_x = start_x * 4;
+	start_x = 0;
+	end_x = img.size().width;
 
 	detector->detect( img, keypoints );
 	for (vector<KeyPoint>::iterator i = keypoints.begin(); i != keypoints.end(); i++)
@@ -269,11 +274,13 @@ int detectCharacter( Mat &img ){
 			flag = 1;
 		}
 	}
-	if (Y > con_num)
+	if (Y > con_num && Y  < img.size().height / 4)
 	{
-		return (Y - con_num) * 10;
+		return (Y - con_num - 11) * slice_total < 0 ? 0 : (Y - con_num - 11) * slice_total ;//fix
+	} else if (Y > con_num){
+		return (Y - con_num) * slice_total;
 	}
-	return Y * 10;
+	return Y * slice_total;
 }
 
 /* Remove the following function when you have succesfully modified config.m4
@@ -311,6 +318,35 @@ PHP_FUNCTION(tclip)
         RETURN_FALSE;
     }
 
+	if (image.size().width * 3 <= image.size().height)
+	{
+		ratio = (float)dest_width / image.size().width;
+		tmp_size = Size((int)(image.size().width * ratio), (int)(image.size().height * ratio));
+		dest_image = Mat(tmp_size, CV_32S);
+		resize(image, dest_image, tmp_size);
+		clip_top = 0;
+		clip_bottom = dest_height - dest_image.size().height;
+		clip_left = 0;
+		clip_right = 0;
+		dest_image.adjustROI(clip_top, clip_bottom, clip_left, clip_right); //Mat& Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
+		imwrite(dest_path, dest_image);
+		RETURN_TRUE;
+	}
+
+	ratio = (float)300.0 / image.size().width;
+	tmp_size = Size((int)(image.size().width * ratio), (int)(image.size().height * ratio));
+	dest_image = Mat(tmp_size, CV_32S);
+	resize(image, dest_image, tmp_size);
+
+	result = detectFace( dest_image TSRMLS_CC);
+
+	if (result == -1)
+	{
+    	result = detectCharacter( dest_image TSRMLS_CC);
+	}
+
+	result = result == -1 ? -1 : (int)((float)result / ratio);
+
 	ratio_width = (float)dest_width / image.size().width;
 	ratio_height = (float)dest_height / image.size().height;
 	if (ratio_width > ratio_height)
@@ -321,16 +357,12 @@ PHP_FUNCTION(tclip)
 	{
 		ratio = ratio_height;
 	}
+
+	result = result == -1 ? -1 : (int)((float)result * ratio);
+
 	tmp_size = Size((int)(image.size().width * ratio), (int)(image.size().height * ratio));
 	dest_image = Mat(tmp_size, CV_32S);
 	resize(image, dest_image, tmp_size);
-
-	result = detectFace( dest_image TSRMLS_CC);
-
-	if (result == -1)
-	{
-    	result = detectCharacter( dest_image );
-	}
 
 	if (ratio_width > ratio_height) //原图片 宽度小于高度
 	{

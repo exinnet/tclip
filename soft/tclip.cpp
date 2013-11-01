@@ -16,6 +16,8 @@ using namespace cv;
 using namespace std;
 
 bool debug = false;
+clock_t start;
+clock_t clt;
 
 #define show_debug(tip,message) if(debug){ cout << tip << message << endl;}
 
@@ -25,11 +27,17 @@ int detectFace( Mat img , string face_cascade_name){
     Mat img_gray;
 	int face_size;
 	int Y;
+	
+	start = clock();
 
 	if( !face_cascade.load( face_cascade_name ) ){ 
         printf("[error] can not load classifier file！[use -H for help]\n");
         return -1; 
     }
+
+	clt = clock() - start;
+	show_debug("read face config cost time ", (double)clt/CLOCKS_PER_SEC);
+
     cvtColor( img, img_gray, CV_BGR2GRAY );
     equalizeHist( img_gray, img_gray );
     face_cascade.detectMultiScale( img_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
@@ -46,7 +54,12 @@ int detectFace( Mat img , string face_cascade_name){
 		show_debug("detectFace:faces[face_size -1].height is ", faces[face_size -1].height);
 		show_debug("detectFace:faces[face_size -1].width is ", faces[face_size -1].height);
 		Y = faces[face_size -1].y - faces[face_size -1].height / 2;
-		return Y < 0 ? 0 : Y;
+		if ( Y > img.size().height / 2 ) //fix
+		{
+			return -1;
+		} else {
+			return Y < 0 ? 0 : Y;
+		}
 	} else {
 		return -1;
 	}
@@ -76,8 +89,10 @@ int detectCharacter( Mat img ){
 		return -1;
 	}
 
-	start_x = img.size().width / 5;
-	end_x = start_x * 4;
+	//start_x = img.size().width / 5;
+	//end_x = start_x * 4;
+	start_x = 0;
+	end_x = img.size().width;
 
 	detector->detect( img, keypoints );
 	for (vector<KeyPoint>::iterator i = keypoints.begin(); i != keypoints.end(); i++)
@@ -91,12 +106,10 @@ int detectCharacter( Mat img ){
 	}
 	avg = total / section_num.size();
 
-	/*
 	for (map<int,int>::iterator i = section_num.begin(); i != section_num.end(); i++)
 	{
-		cout << i->first << "->" << i->second << endl;
+		show_debug(i->first, i->second);
 	}
-	*/
 
 	show_debug("detectCharacter:avg is ", avg);
 
@@ -135,16 +148,17 @@ int detectCharacter( Mat img ){
 			flag = 1;
 		}
 	}
-	if (Y > con_num)
+	if (Y > con_num && Y < img.size().height / 4)
 	{
-		return (Y - con_num) * 10;
+		return (Y - con_num - 11) * slice_total < 0 ? 0 : (Y - con_num - 11) * slice_total ;//fix
+	} else if (Y > con_num){
+		return (Y - con_num) * slice_total;
 	}
 	return Y * 10;
 }
 
 int main(int argc, char** argv)
 {
-	const double CLK_TCK = 1000.0;
 	Mat image;
 	Mat dest_image;
 	Size tmp_size;
@@ -161,8 +175,6 @@ int main(int argc, char** argv)
 	string source_path = "";
 	string dest_path = "";
 	int result = 0;
-	clock_t start;
-	clock_t clt;
 	int param;
 
 	while( (param = getopt(argc, argv, "Hms:d:c:w:h:")) != -1 )
@@ -203,6 +215,9 @@ int main(int argc, char** argv)
 		cerr << "you should specify the path of destination file.[use -H for help]" << endl;
 		return 1;
 	}
+	
+	show_debug("start to read image ", "");
+	start = clock();
 
     image = imread( source_path );
     if( !image.data ){
@@ -210,15 +225,69 @@ int main(int argc, char** argv)
         return 1;
     }
 
-	show_debug("start to resize ", "");
-	
-	ratio_width = (float)dest_width / image.size().width;
-	ratio_height = (float)dest_height / image.size().height;
+	clt = clock() - start;
+	show_debug("read image cost time ", (double)clt/CLOCKS_PER_SEC);
 
+
+	show_debug("start to resize ", "");
 	show_debug("width of dest image ", dest_width);
 	show_debug("height of dest image ", dest_height);
 	show_debug("width of origin image ", image.size().width);
 	show_debug("height of origin image ", image.size().height);
+
+	if (image.size().width * 3 <= image.size().height)
+	{
+		show_debug("type is 1 ", "");
+		ratio = (float)dest_width / image.size().width;
+		show_debug("ratio is ", ratio);
+		tmp_size = Size((int)(image.size().width * ratio), (int)(image.size().height * ratio));
+		dest_image = Mat(tmp_size, CV_32S);
+		resize(image, dest_image, tmp_size);
+		clip_top = 0;
+		clip_bottom = dest_height - dest_image.size().height;
+		clip_left = 0;
+		clip_right = 0;
+		dest_image.adjustROI(clip_top, clip_bottom, clip_left, clip_right); //Mat& Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
+		imwrite(dest_path, dest_image);
+		return -1;
+	}
+
+	ratio = (float)300.0 / image.size().width;
+	show_debug("ratio is ", ratio);
+	tmp_size = Size((int)(image.size().width * ratio), (int)(image.size().height * ratio));
+	dest_image = Mat(tmp_size, CV_32S);
+	resize(image, dest_image, tmp_size);
+
+	show_debug("start to detectFace ", "");
+	start = clock();
+
+    result = detectFace( dest_image, config_path);
+
+	clt = clock() - start;
+	show_debug("detectFace cost time ", (double)clt/CLOCKS_PER_SEC);
+	show_debug("detectFace Y is ", result);
+	show_debug("detectFace end", "");
+
+	if ( result == -1 )
+	{
+		show_debug("start to detectCahracter ", "");
+		start = clock();
+
+    	result = detectCharacter( dest_image );
+
+		clt = clock() - start;
+		show_debug("detectCharacter cost time ", (double)clt/CLOCKS_PER_SEC);
+		show_debug("detectCharacter Y is ", result);
+		show_debug("detectCharacter end", "");
+	}
+
+	result = result == -1 ? -1 : (int)((float)result / ratio);
+
+	show_debug("the origin result is ", result);
+	
+	ratio_width = (float)dest_width / image.size().width;
+	ratio_height = (float)dest_height / image.size().height;
+
 	show_debug("ratio of width ", ratio_width);
 	show_debug("ratio of height ", ratio_height);
 
@@ -230,36 +299,16 @@ int main(int argc, char** argv)
 	{
 		ratio = ratio_height;
 	}
+
+	result = result == -1 ? -1 : (int)((float)result * ratio);
+
+	show_debug("ratio is ", ratio);
 	tmp_size = Size((int)(image.size().width * ratio), (int)(image.size().height * ratio));
 	dest_image = Mat(tmp_size, CV_32S);
 	resize(image, dest_image, tmp_size);
 
 	show_debug("width of resize image ", dest_image.size().width);
 	show_debug("height of resize image ", dest_image.size().height);
-
-	show_debug("start to detectFace ", "");
-	start = clock();
-
-    result = detectFace( dest_image, config_path);
-
-	clt = clock() - start;
-	show_debug("detectFace cost time ", double(clt/CLK_TCK));
-	show_debug("detectFace Y is ", result);
-	show_debug("detectFace end", "");
-
-	if (result == -1)
-	{
-		cout << "start to detectCahracter " << endl;
-		show_debug("start to detectCahracter ", "");
-		start = clock();
-
-    	result = detectCharacter( dest_image );
-
-		clt = clock() - start;
-		show_debug("detectCharacter cost time ", double(clt/CLK_TCK));
-		show_debug("detectCharacter Y is ", result);
-		show_debug("detectCharacter end", "");
-	}
 
 	if (ratio_width > ratio_height) //原图片 宽度小于高度
 	{
