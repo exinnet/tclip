@@ -237,6 +237,11 @@ int detectCharacter( Mat &img TSRMLS_DC){
 			total = total + 1;
 		}
 	}
+
+	if (section_num.size() == 0)
+	{
+		return -1;
+	}
 	avg = total / section_num.size();
 
 	//检测特征点分布是否均匀
@@ -385,8 +390,16 @@ PHP_FUNCTION(tclip)
 	}
 
 	dest_image.adjustROI(clip_top, clip_bottom, clip_left, clip_right); //Mat& Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
+	try
+	{
+		imwrite(dest_path, dest_image);
 
-	imwrite(dest_path, dest_image);
+	}
+	catch (exception &e)
+	{
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, e.what());
+		RETURN_FALSE;
+	}
 	
 	RETURN_TRUE;
 }

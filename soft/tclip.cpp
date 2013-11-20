@@ -104,6 +104,10 @@ int detectCharacter( Mat img ){
 			total = total + 1;
 		}
 	}
+	if (section_num.size() == 0)
+	{
+		return -1;
+	}
 	avg = total / section_num.size();
 
 	for (map<int,int>::iterator i = section_num.begin(); i != section_num.end(); i++)
@@ -335,7 +339,13 @@ int main(int argc, char** argv)
 	show_debug("clip_left ", clip_left);
 	show_debug("clip_right ", clip_right);
 	dest_image.adjustROI(clip_top, clip_bottom, clip_left, clip_right); //Mat& Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
-
-	imwrite(dest_path, dest_image);
+	try
+	{
+		imwrite(dest_path, dest_image);
+	}
+	catch (exception &e)
+	{
+		cerr << e.what() << endl;
+	}
 	show_debug("write to file ", dest_path);
 }
