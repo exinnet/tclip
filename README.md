@@ -89,7 +89,8 @@ $source_file = "/tmp/a.jpg";  <br/>
 $dest_file = "/www/a_dest.jpg";  <br/>
 $width = 400;  <br/>
 $height = 200;  <br/>
-tclip($source_file, $dest_file, $width, $height);  <br/>
+$ret = tclip($source_file, $dest_file, $width, $height);  <br/>
+裁剪成功 $ret 为 true，裁剪识别 $ret 为false <br/>
 第二种：命令行 <br/>
 参数说明： <br/>
 -s 原图路径 <br/>
