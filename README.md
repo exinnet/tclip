@@ -39,7 +39,10 @@ Tclip，意为淘宝开源的图片裁剪项目。<br/>
 使用tclip裁剪图片效果如下：<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/b3.jpg "github")
 <br/>
-
+<br/>
+演示地址：[http://demo.bo56.com/tclip](http://demo.bo56.com/tclip)
+<br/>
+<br/>
 安装步骤：
 --------------
 ###源码下载<br/>
