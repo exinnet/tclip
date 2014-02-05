@@ -47,7 +47,7 @@ Tclip，意为淘宝开源的图片裁剪项目。<br/>
 安装步骤：
 --------------
 ###源码下载<br/>
-opencv2 下载地址  [http://www.opencv.org.cn/index.php/Download](http://www.opencv.org.cn/index.php/Download)
+opencv2 下载地址  [http://www.bo56.com/tclip人脸识别图片裁剪/#download](http://www.bo56.com/tclip%E4%BA%BA%E8%84%B8%E8%AF%86%E5%88%AB%E5%9B%BE%E7%89%87%E8%A3%81%E5%89%AA/#download) (建议opencv2.4.4版本) 
 <br/>
 ###安装opencv2 <br/>
 此扩展依赖于opencv2.0 之上版本。因此安装前先安装opencv。opencv的安装步骤如下<br/>
