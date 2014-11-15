@@ -1,100 +1,100 @@
 tclip
 =====
 
-����˵��
+名字说明
 ---------------
-T��ͷ���������Ա���Դ<br/>
-clip����[klip]����Ϊ�ü���<br/>
-Tclip����Ϊ�Ա���Դ��ͼƬ�ü���Ŀ��<br/>
+T开头，代表是头像识别<br/>
+clip，读[klip]，译为裁剪。<br/>
+Tclip，意为自动头像识别的图片裁剪项目。<br/>
 <br/>
 
-��Ҫ
+概要
 ---------------
-����ͼƬ�ü����������ص㣺 <br/>
-1.�ܽ�������ʶ��ͼƬ�������������Զ���Ϊ��������Ϊ��Ҫ���򣬽����ᱻ�ü����� <br/>
-2.�Զ�ʶ��������Ҫ�������ͼƬ��δʶ��������������������ֲ������������ <br/>
-�ܶ���֮���Զ�ʶ��ͼƬ�е���Ҫ���򣬲�����ͼƬ�ü�ʱ������Ҫ���� <br/>
-Ŀǰ���Ѿ���ʽ���Ա�һ�������ʹ�á�[wanke.etao.com](http://wanke.etao.com) <br/>
+用于图片裁剪。有以下特点： <br/>
+1.能进行人脸识别。图片中有人脸，将自动视为人脸区域为重要区域，将不会被裁剪掉。 <br/>
+2.自动识别其它重要区域。如果图片中未识别出人脸，则会根据特征分布计算出重区域。 <br/>
+总而言之，自动识别图片中的重要区域，并且在图片裁剪时保留重要区域。 <br/>
+目前，已经正式在淘宝一淘玩客中使用。[wanke.etao.com](http://wanke.etao.com) <br/>
 <br/>
 
-Ч����ʾ
+效果演示
 -----------------------
-###����Ч����ʾ
-ԭͼ<br/>
+###人物效果演示
+原图<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/a1.jpg "github")
 <br/><br/>
-������մ��м��ȡΪ 400 * 225 ��С��ͼƬ��Ч�����£�<br/>
+如果按照从中间截取为 400 * 225 大小大图片。效果如下：<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/a2.JPG "github")
 <br/><br/>
-ʹ��tclip�ü�ͼƬЧ�����£�<br/>
+使用tclip裁剪图片效果如下：<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/a3.jpg "github")
 <br/>
-###����Ч����ʾ
-ԭͼ<br/>
+###景物效果演示
+原图<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/b1.jpg "github")
 <br/><br/>
-������մ��м��ȡ��Ч�����£�<br/>
+如果按照从中间截取。效果如下：<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/b2.JPG "github")
 <br/><br/>
-ʹ��tclip�ü�ͼƬЧ�����£�<br/>
+使用tclip裁剪图片效果如下：<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/b3.jpg "github")
 <br/>
 <br/>
-###������ʾ
-��ʾ��ַ��[http://demo.bo56.com/tclip](http://demo.bo56.com/tclip)
+###在线演示
+演示地址：[http://demo.bo56.com/tclip](http://demo.bo56.com/tclip)
 <br/>
 <br/>
-��װ���裺
+安装步骤：
 --------------
-###Դ������<br/>
-opencv2 ���ص�ַ  [http://www.bo56.com/tclip����ʶ��ͼƬ�ü�/#download](http://www.bo56.com/tclip%E4%BA%BA%E8%84%B8%E8%AF%86%E5%88%AB%E5%9B%BE%E7%89%87%E8%A3%81%E5%89%AA/#download) (����opencv2.4.4�汾) 
+###源码下载<br/>
+opencv2 下载地址  [http://www.bo56.com/tclip人脸识别图片裁剪/#download](http://www.bo56.com/tclip%E4%BA%BA%E8%84%B8%E8%AF%86%E5%88%AB%E5%9B%BE%E7%89%87%E8%A3%81%E5%89%AA/#download) (建议opencv2.4.4版本) 
 <br/>
-###��װopencv2 <br/>
-����չ������opencv2.0 ֮�ϰ汾����˰�װǰ�Ȱ�װopencv��opencv�İ�װ��������<br/>
+###安装opencv2 <br/>
+此扩展依赖于opencv2.0 之上版本。因此安装前先安装opencv。opencv的安装步骤如下<br/>
 yum install gtk+ gtk+-devel pkgconfig libpng zlib libjpeg libtiff cmake <br/>
-���� opencv2 ��װ�� <br/>
-��ѹ��װ�� <br/>
-cd ���밲װ���ļ����ڡ�<br/>
+下载 opencv2 安装包 <br/>
+解压安装包 <br/>
+cd 进入安装包文件夹内。<br/>
 cmake CMakeLists.txt <br/>
 make && make install <br/>
 vim /etc/profile <br/>
-�� unset i ǰ���� <br/>
+在 unset i 前增加 <br/>
 export PKG_CONFIG_PATH=/usr/lib/pkgconfig/:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH <br/>
-�����˳���ִ���������� <br/>
+保持退出后，执行如下命令 <br/>
 source /etc/profile <br/>
 echo "/usr/local/lib/" > /etc/ld.so.conf.d/opencv.conf <br/>
 ldconfig <br/>
 <br/>
-###��װtclip��չ<br/>
-cd ��Դ����Ŀ¼�е�php_ext�ļ��� <br/>
+###安装tclip扩展<br/>
+cd 到源代码目录中的php_ext文件夹 <br/>
 phpize <br/>
 ./configure <br/>
 make <br/>
-cp modules/tclip.so �� extension Ŀ¼ <br/>
-�޸�php.ini������ extension=tclip.so <br/>
-����fpm <br/>
-###��װ������<br/>
-�����ʹ�������з�ʽ�����Խ������°�װ<br/>
-cd ���밲װ��soft�ļ�����<br/>
+cp modules/tclip.so 到 extension 目录 <br/>
+修改php.ini。加入 extension=tclip.so <br/>
+重启fpm <br/>
+###安装命令行<br/>
+如果想使用命令行方式，可以进行如下安装<br/>
+cd 进入安装包soft文件夹内<br/>
 chmod +x ./tclip.sh <br/>
 ./tclip.sh <br/>
 <br/>
 
-ʹ�÷���˵��
+使用方法说明
 ---------------------
-��һ�֣���php��ʹ�ø�ʽ��<br/>
-tclip(�ļ�ԭ·�����ü����ͼƬ����·�����ü����ͼƬ���ȣ��ü����ͼƬ�߶�)  <br/>
-ʾ���� <br/>
+第一种：在php中使用格式：<br/>
+tclip(文件原路径，裁剪后的图片保存路径，裁剪后的图片宽度，裁剪后的图片高度)  <br/>
+示例： <br/>
 $source_file = "/tmp/a.jpg";  <br/>
 $dest_file = "/www/a_dest.jpg";  <br/>
 $width = 400;  <br/>
 $height = 200;  <br/>
 $ret = tclip($source_file, $dest_file, $width, $height);  <br/>
-�ü��ɹ� $ret Ϊ true���ü�ʶ�� $ret Ϊfalse <br/>
-�ڶ��֣������� <br/>
-����˵���� <br/>
--s ԭͼ·�� <br/>
--d �ü����ͼƬ����·�� <br/>
--w �ü����ͼƬ���� <br/>
--h �ü����ͼƬ�߶� <br/>
+裁剪成功 $ret 为 true，裁剪识别 $ret 为false <br/>
+第二种：命令行 <br/>
+参数说明： <br/>
+-s 原图路径 <br/>
+-d 裁剪后的图片保存路径 <br/>
+-w 裁剪后的图片宽度 <br/>
+-h 裁剪后的图片高度 <br/>
 ./tclip -s a.jpg -d a_dest.jpg -w 400 -h 200 <br/>
