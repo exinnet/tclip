@@ -300,7 +300,7 @@ PHP_FUNCTION(tclip)
 	char *source_path = NULL;
 	char *dest_path = NULL;
 	int source_len, dest_len;
-	int dest_height, dest_width;
+	long dest_height, dest_width;
 	int result = 0;
 	Mat image;
 	Mat dest_image;
