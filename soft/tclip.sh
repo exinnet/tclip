@@ -1,2 +1,2 @@
 #!/bin/bash
-g++ `pkg-config opencv --libs --cflags opencv` tclip.cpp -o tclip
+g++  tclip.cpp `pkg-config opencv --libs --cflags opencv` -o tclip
