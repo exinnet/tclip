@@ -36,17 +36,29 @@ if test "$PHP_TCLIP" != "no"; then
   fi
 
   OPENCV_FLAGS="`pkg-config opencv --libs --cflags opencv`"
+  opencv_lib_path=""
   for i in $OPENCV_FLAGS;do
         if test ${i:0:2} = "-I" ;then
                 PHP_ADD_INCLUDE(${i:2})
+        elif test ${i:0:2} = "-L" ;then
+                opencv_lib_path=${i:2}
         elif test ${i:${#i}-3} = ".so" ;then
                 dir_name=`dirname $i`
                 file_name=${i/$dir_name/}
                 file_name=${file_name/\/lib/}
                 file_name=${file_name/.so/}
-		PHP_ADD_LIBRARY_WITH_PATH($file_name,$dir_name,TCLIP_SHARED_LIBADD)
-	else
-		AC_MSG_ERROR([no result from pkg-config opencv --libs --cflags opencv])
+		        PHP_ADD_LIBRARY_WITH_PATH($file_name,$dir_name,TCLIP_SHARED_LIBADD)
+        elif test ${i:${#i}-6} = ".dylib" ;then
+                dir_name=`dirname $i`
+                file_name=${i/$dir_name/}
+                file_name=${file_name/\/lib/}
+                file_name=${file_name/.dylib/}
+		        PHP_ADD_LIBRARY_WITH_PATH($file_name,$dir_name,TCLIP_SHARED_LIBADD)
+        elif test ${i:0:2} = "-l" ;then 
+                file_name=${i:2}
+                PHP_ADD_LIBRARY_WITH_PATH($file_name,$opencv_lib_path,TCLIP_SHARED_LIBADD)
+	    else
+		        AC_MSG_ERROR([no result from pkg-config opencv --libs --cflags opencv])
         fi
   done
 
