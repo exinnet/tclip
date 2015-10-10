@@ -4,7 +4,7 @@
 ```
 
 ###效果演示请参考原作者
-https://raw.github.com/exinnet/tclip
+https://github.com/exinnet/tclip
 
 ###安装说明
 ```
@@ -68,3 +68,7 @@ Usage: exclip [options] [-s] <source_file> [--] [args...]
 		default path is /usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml
 -m		open debug model
 ```
+
+###contact
+如果你对扩展水印有更多疑问请+qq群 233415606 or [website http://xingqiba.sinaapp.com](http://xingqiba.sinaapp.com)
+
