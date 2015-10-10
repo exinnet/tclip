@@ -2,6 +2,8 @@
 ```
 本fork增加了文字水印功能
 ```
+![github](./demo_images/demo_.jpg "裁剪后水印图")
+![github](./demo_images/demo.jpg "原始图")
 
 ###效果演示请参考原作者
 https://github.com/exinnet/tclip

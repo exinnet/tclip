@@ -27,3 +27,4 @@ run-tests.php
 .idea/
 .DS_Store
 config.h.in~
+soft/tclip
