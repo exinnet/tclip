@@ -66,8 +66,8 @@ Usage: tclip [options] [-s] <source_file> [--] [args...]
 -w<int>		the width of destination file. default value is 300
 -h<int>		the height of destination file. default value is 180
 -c<path>	the path of config file.
--t<string>	the watermark text.
 		default path is /usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml
+-t<string>	the watermark text.
 -m		open debug model
 ```
 

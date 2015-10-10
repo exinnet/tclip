@@ -169,8 +169,8 @@ void show_help() {
 	cout << "-w<int>		the width of destination file. default value is 300" << endl;
 	cout << "-h<int>		the height of destination file. default value is 180" << endl;
 	cout << "-c<path>	the path of config file." << endl;
-	cout << "-t<string>	the watermark text." << endl;
 	cout << "		default path is /usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml" << endl;
+	cout << "-t<string>	the watermark text." << endl;
 	cout << "-m		open debug model" << endl;
 }    
 
