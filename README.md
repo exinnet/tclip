@@ -58,7 +58,7 @@ $ret = tclip($source_file, $dest_file, $width, $height, $watermark_text);
 
 ####cli
 ```
-Usage: exclip [options] [-s] <source_file> [--] [args...]
+Usage: tclip [options] [-s] <source_file> [--] [args...]
 -s<path>	the path of source file
 -d<path>	the path of destination file
 -w<int>		the width of destination file. default value is 300

@@ -163,7 +163,7 @@ int detectCharacter( Mat img ){
 }
 
 void show_help() {
-    cout << "Usage: exclip [options] [-s] <source_file> [--] [args...]" << endl;
+    cout << "Usage: tclip [options] [-s] <source_file> [--] [args...]" << endl;
 	cout << "-s<path>	the path of source file" << endl;
 	cout << "-d<path>	the path of destination file" << endl;
 	cout << "-w<int>		the width of destination file. default value is 300" << endl;
