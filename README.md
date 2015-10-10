@@ -46,7 +46,7 @@ Tclip，意为自动头像识别的图片裁剪项目。<br/>
 安装步骤：
 --------------
 ###源码下载<br/>
-opencv2 下载地址  [http://www.bo56.com/tclip人脸识别图片裁剪/#download](http://www.bo56.com/tclip%E4%BA%BA%E8%84%B8%E8%AF%86%E5%88%AB%E5%9B%BE%E7%89%87%E8%A3%81%E5%89%AA/#download) (建议opencv2.4.4版本) 
+opencv2 见libs
 <br/>
 ###安装opencv2 <br/>
 此扩展依赖于opencv2.0 之上版本。因此安装前先安装opencv。opencv的安装步骤如下<br/>
@@ -79,21 +79,21 @@ chmod +x ./tclip.sh <br/>
 ./tclip.sh <br/>
 <br/>
 
-使用方法说明
----------------------
-第一种：在php中使用格式：<br/>
-tclip(文件原路径，裁剪后的图片保存路径，裁剪后的图片宽度，裁剪后的图片高度)  <br/>
-示例： <br/>
-$source_file = "/tmp/a.jpg";  <br/>
-$dest_file = "/www/a_dest.jpg";  <br/>
-$width = 400;  <br/>
-$height = 200;  <br/>
-$ret = tclip($source_file, $dest_file, $width, $height);  <br/>
-裁剪成功 $ret 为 true，裁剪识别 $ret 为false <br/>
-第二种：命令行 <br/>
-参数说明： <br/>
--s 原图路径 <br/>
--d 裁剪后的图片保存路径 <br/>
--w 裁剪后的图片宽度 <br/>
--h 裁剪后的图片高度 <br/>
-./tclip -s a.jpg -d a_dest.jpg -w 400 -h 200 <br/>
+###使用方法说明
+
+####php
+```
+$source_file = "/tmp/a.jpg";
+$dest_file = "/www/a_dest.jpg";
+$width = 400;
+$height = 200;
+$text = ""; //水印
+$ret = tclip($source_file, $dest_file, $width, $height, $text);
+裁剪成功 $ret 为 true，裁剪识别 $ret 为false
+```
+
+####cli
+```
+./tclip -s 原图路径 -d 裁剪后的图片保存路径 -w 裁剪后的图片宽度 -h 裁剪后的图片高度 -t 文字水印
+./tclip -s a.jpg -d a_dest.jpg -w 400 -h 200 -t "xingqiba"
+```

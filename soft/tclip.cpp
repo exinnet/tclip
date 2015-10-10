@@ -162,8 +162,25 @@ int detectCharacter( Mat img ){
 	return Y * 10;
 }
 
+void show_help() {
+    cout << "Usage: exclip [options] [-s] <source_file> [--] [args...]" << endl;
+	cout << "-s<path>	the path of source file" << endl;
+	cout << "-d<path>	the path of destination file" << endl;
+	cout << "-w<int>		the width of destination file. default value is 300" << endl;
+	cout << "-h<int>		the height of destination file. default value is 180" << endl;
+	cout << "-c<path>	the path of config file." << endl;
+	cout << "-t<string>	the watermark text." << endl;
+	cout << "		default path is /usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml" << endl;
+	cout << "-m		open debug model" << endl;
+}    
+
 int main(int argc, char** argv)
 {
+    if (argc == 1) {
+        show_help();
+        return 1;
+    }    
+    
 	Mat image;
 	Mat dest_image;
 	Size tmp_size;
@@ -179,45 +196,34 @@ int main(int argc, char** argv)
 	string config_path = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml";
 	string source_path = "";
 	string dest_path = "";
+	string watermark_text = "";
 	int result = 0;
 	int param;
 
-	while( (param = getopt(argc, argv, "Hms:d:c:w:h:")) != -1 )
+	while( (param = getopt(argc, argv, "Hms:d:c:w:h:t:")) != -1 )
 	{
-		if ( param == 's' ){
+		if ( param == 's' ) {
 			source_path = optarg;
-		} else if ( param == 'd' ) {
+		}else if ( param == 'd' ) {
 			dest_path = optarg;
-		} else if ( param == 'm' ) {
+		}else if ( param == 'm' ) {
 			debug = true;
 		}else if ( param == 'c' ) {
 			config_path = optarg;
 		}else if ( param == 'w' ) {
 			sscanf (optarg, "%d", &dest_width);
+		}else if ( param == 't' ) {
+			watermark_text = optarg;
 		}else if ( param == 'h' ) {
 			sscanf (optarg, "%d", &dest_height);
-		}else if ( param == 'H')
-		{
-			cout << "Usage: exclip [options] [-s] <source_file> [--] [args...]" << endl;
-			cout << "-s<path>	the path of source file" << endl;
-			cout << "-d<path>	the path of destination file" << endl;
-			cout << "-w<int>		the width of destination file. default value is 300" << endl;
-			cout << "-h<int>		the height of destination file. default value is 180" << endl;
-			cout << "-c<path>	the path of config file." << endl;
-			cout << "		default path is /usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml" << endl;
-			cout << "-m		open debug model" << endl;
+		}else if ( param == 'H') {
+			show_help();
 			return 0;
 		}
 	}
 
-	if ( source_path == "" )
-	{
-		cerr << "you should specify the path of source file.[use -H for help]" << endl;
-		return 1;
-	}
-	if ( dest_path == "" )
-	{
-		cerr << "you should specify the path of destination file.[use -H for help]" << endl;
+	if ( source_path == "" ||  dest_path == "" ) {
+		show_help();
 		return 1;
 	}
 	
@@ -233,15 +239,13 @@ int main(int argc, char** argv)
 	clt = clock() - start;
 	show_debug("read image cost time ", (double)clt/CLOCKS_PER_SEC);
 
-
 	show_debug("start to resize ", "");
 	show_debug("width of dest image ", dest_width);
 	show_debug("height of dest image ", dest_height);
 	show_debug("width of origin image ", image.size().width);
 	show_debug("height of origin image ", image.size().height);
 
-	if (image.size().width * 3 <= image.size().height)
-	{
+	if (image.size().width * 3 <= image.size().height) {
 		show_debug("type is 1 ", "");
 		ratio = (float)dest_width / image.size().width;
 		show_debug("ratio is ", ratio);
@@ -273,8 +277,7 @@ int main(int argc, char** argv)
 	show_debug("detectFace Y is ", result);
 	show_debug("detectFace end", "");
 
-	if ( result == -1 )
-	{
+	if ( result == -1 ) {
 		show_debug("start to detectCahracter ", "");
 		start = clock();
 
@@ -296,12 +299,9 @@ int main(int argc, char** argv)
 	show_debug("ratio of width ", ratio_width);
 	show_debug("ratio of height ", ratio_height);
 
-	if (ratio_width > ratio_height)
-	{
+	if (ratio_width > ratio_height) {
 		ratio = ratio_width;
-	}
-	else
-	{
+	} else {
 		ratio = ratio_height;
 	}
 
@@ -315,15 +315,13 @@ int main(int argc, char** argv)
 	show_debug("width of resize image ", dest_image.size().width);
 	show_debug("height of resize image ", dest_image.size().height);
 
-	if (ratio_width > ratio_height) //原图片 宽度小于高度
-	{
-		if (result == -1)
-		{
+    //原图片 宽度小于高度
+	if (ratio_width > ratio_height) {
+		if (result == -1) {
 			clip_top = -((dest_image.size().height - dest_height) / 2);
 			clip_bottom = clip_top;
-		}else {
-			if (dest_image.size().height - result >= dest_height)
-			{
+		} else {
+			if (dest_image.size().height - result >= dest_height) {
 				clip_top = -result;
 				clip_bottom = -(dest_image.size().height - result - dest_height);
 			} else {
@@ -340,13 +338,16 @@ int main(int argc, char** argv)
 	show_debug("clip_left ", clip_left);
 	show_debug("clip_right ", clip_right);
 	dest_image.adjustROI(clip_top, clip_bottom, clip_left, clip_right); //Mat& Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
-	try
-	{
-		imwrite(dest_path, dest_image);
+	
+	if (watermark_text != "") {
+	    putText(dest_image, watermark_text , Point(10, dest_image.rows-20), CV_FONT_HERSHEY_SIMPLEX, 0.8f, CV_RGB(255,255,255), 2);
 	}
-	catch (exception &e)
-	{
+	
+	try {
+		imwrite(dest_path, dest_image);
+	} catch (exception &e) {
 		cerr << e.what() << endl;
 	}
+	
 	show_debug("write to file ", dest_path);
 }

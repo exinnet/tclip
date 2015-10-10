@@ -94,7 +94,6 @@ END_EXTERN_C()
  */
 /* Remove comments and fill if you need to have entries in php.ini*/
 PHP_INI_BEGIN()
-    //STD_PHP_INI_ENTRY("tclip.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_tclip_globals, tclip_globals)
     STD_PHP_INI_ENTRY("tclip.face_config_path", "", PHP_INI_ALL, OnUpdateString, face_config_path, zend_tclip_globals, tclip_globals)
 PHP_INI_END()
 
@@ -299,6 +298,7 @@ PHP_FUNCTION(tclip)
 {
 	char *source_path = NULL;
 	char *dest_path = NULL;
+	char *watermark_text = NULL;
 	int source_len, dest_len;
 	long dest_height, dest_width;
 	int result = 0;
@@ -312,8 +312,15 @@ PHP_FUNCTION(tclip)
 	int clip_bottom = 0;
 	int clip_left = 0;
 	int clip_right = 0;
+	int watermark_text_len = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssll", &source_path, &source_len, &dest_path, &dest_len, &dest_width, &dest_height) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, 
+	    "ssll|s", 
+	    &source_path, &source_len, 
+	    &dest_path, &dest_len, 
+	    &dest_width, 
+	    &dest_height,
+	    &watermark_text, &watermark_text_len) == FAILURE) {
 		return;
 	}
 
@@ -390,6 +397,11 @@ PHP_FUNCTION(tclip)
 	}
 
 	dest_image.adjustROI(clip_top, clip_bottom, clip_left, clip_right); //Mat& Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
+	
+	if (watermark_text_len > 0) {
+        putText(dest_image, watermark_text , Point(10, dest_image.rows-20), CV_FONT_HERSHEY_SIMPLEX, 0.8f, CV_RGB(255,255,255), 2);
+    }    
+	
 	try
 	{
 		imwrite(dest_path, dest_image);
