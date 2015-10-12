@@ -40,6 +40,10 @@ Tclip，意为自动头像识别的图片裁剪项目。<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/b3.jpg "github")
 <br/>
 <br/>
+###水印效果
+![github](https://raw.github.com/exinnet/tclip/master/demo_images/a1_dest_watermark.jpg "github")
+<br/>
+<br/>
 ###在线演示
 演示地址：[http://demo.bo56.com/tclip](http://demo.bo56.com/tclip)
 <br/>
