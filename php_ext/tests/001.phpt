@@ -1,10 +1,10 @@
 --TEST--
-Check for exclip presence
+Check for tclip presence
 --SKIPIF--
-<?php if (!extension_loaded("exclip")) print "skip"; ?>
+<?php if (!extension_loaded("tclip")) print "skip"; ?>
 --FILE--
 <?php 
-echo "exclip extension is available";
+echo "tclip extension is available";
 /*
 	you can add regression tests for your extension here
 
