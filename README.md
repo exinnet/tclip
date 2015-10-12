@@ -106,3 +106,7 @@ $ret = tclip($source_file, $dest_file, $width, $height, $watermark_text);  <br/>
 -t 水印文本 <br/>
 -m 打开debug模式 <br/>
 ./tclip -s a.jpg -d a_dest.jpg -w 400 -h 200 <br/>
+
+贡献者
+---------------------
+jonnywang [https://github.com/jonnywang](https://github.com/jonnywang) <br/>
