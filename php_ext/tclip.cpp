@@ -108,6 +108,17 @@ static void php_tclip_init_globals(zend_tclip_globals *tclip_globals)
 	tclip_globals->face_config_path = NULL;
 }
 
+static inline int tclip_zend_hash_find(HashTable *ht, char *k, int len, void **v) {
+    zval **tmp = NULL;
+    if (zend_hash_find(ht, k, len, (void **) &tmp) == SUCCESS) {
+        *v = *tmp;
+        return SUCCESS;
+    } else {
+        *v = NULL;
+        return FAILURE;
+    }
+}
+
 /* }}} */
 
 /* {{{ PHP_MINIT_FUNCTION
@@ -298,7 +309,6 @@ PHP_FUNCTION(tclip)
 {
 	char *source_path = NULL;
 	char *dest_path = NULL;
-	char *watermark_text = NULL;
 	int source_len, dest_len;
 	long dest_height, dest_width;
 	int result = 0;
@@ -312,26 +322,94 @@ PHP_FUNCTION(tclip)
 	int clip_bottom = 0;
 	int clip_left = 0;
 	int clip_right = 0;
-	int watermark_text_len = 0;
+
+	char *watermark_text = NULL;
+	zval *z_watermark_cfg = NULL;
+	HashTable *h_watermark_cfg;
+	zval *z_tmp_v = NULL;
+	int font = 0, point_x = 0, point_y = 0, watermark_text_len = 0, color_r = 255, color_g = 255, color_b = 255, thickness = 2;
+	double font_scale = 0.8f;
+
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, 
-	    "ssll|s", 
+	    "ssll|z",
 	    &source_path, &source_len, 
 	    &dest_path, &dest_len, 
 	    &dest_width, 
 	    &dest_height,
-	    &watermark_text, &watermark_text_len) == FAILURE) {
+	    &z_watermark_cfg) == FAILURE) {
 		return;
 	}
 
+	if (z_watermark_cfg != NULL) {
+		if (Z_TYPE_P(z_watermark_cfg) != IS_ARRAY && Z_TYPE_P(z_watermark_cfg) != IS_STRING) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "the fifth param type must be array or string");
+			RETURN_FALSE;
+		}
+
+		switch (Z_TYPE_P(z_watermark_cfg)) {
+			case IS_ARRAY:
+				h_watermark_cfg = Z_ARRVAL_P(z_watermark_cfg);
+				//text
+				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("text"), (void **) &z_tmp_v) == SUCCESS) {
+					convert_to_string(z_tmp_v);
+					watermark_text = Z_STRVAL_P(z_tmp_v);
+					watermark_text_len = Z_STRLEN_P(z_tmp_v);
+				}
+				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("font"), (void **) &z_tmp_v) == SUCCESS) {
+					convert_to_long(z_tmp_v);
+					font = (int) Z_LVAL_P(z_tmp_v);
+					if (font < CV_FONT_HERSHEY_SIMPLEX || font > CV_FONT_HERSHEY_SCRIPT_COMPLEX) {
+						font = CV_FONT_HERSHEY_SIMPLEX;
+					}
+				}
+				//point x y
+				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("x"), (void **) &z_tmp_v) == SUCCESS) {
+					convert_to_long(z_tmp_v);
+					point_x = (int) Z_LVAL_P(z_tmp_v);
+				}
+				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("y"), (void **) &z_tmp_v) == SUCCESS) {
+					convert_to_long(z_tmp_v);
+					point_y = (int) Z_LVAL_P(z_tmp_v);
+				}
+				//font scale
+				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("scale"), (void **) &z_tmp_v) == SUCCESS) {
+					convert_to_double(z_tmp_v);
+					font_scale = (double)Z_DVAL_P(z_tmp_v);
+				}
+				//r g b
+				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("red"), (void **) &z_tmp_v) == SUCCESS) {
+					convert_to_long(z_tmp_v);
+					color_r = (int) Z_LVAL_P(z_tmp_v);
+				}
+				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("green"), (void **) &z_tmp_v) == SUCCESS) {
+					convert_to_long(z_tmp_v);
+					color_g = (int) Z_LVAL_P(z_tmp_v);
+				}
+				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("blue"), (void **) &z_tmp_v) == SUCCESS) {
+					convert_to_long(z_tmp_v);
+					color_b = (int) Z_LVAL_P(z_tmp_v);
+				}
+				//thickness
+				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("thickness"), (void **) &z_tmp_v) == SUCCESS) {
+					convert_to_long(z_tmp_v);
+					thickness = (int) Z_LVAL_P(z_tmp_v);
+				}
+				break;
+			case IS_STRING:
+				watermark_text = Z_STRVAL_P(z_watermark_cfg);
+				watermark_text_len = Z_STRLEN_P(z_watermark_cfg);
+				break;
+		}
+	}
+
 	image = imread( source_path );
-    if( !image.data ){
+    if (!image.data) {
         php_error_docref(NULL TSRMLS_CC, E_WARNING, "fail to load image from %s", source_path);
         RETURN_FALSE;
     }
 
-	if (image.size().width * 3 <= image.size().height)
-	{
+	if (image.size().width * 3 <= image.size().height) {
 		ratio = (float)dest_width / image.size().width;
 		tmp_size = Size((int)(image.size().width * ratio), (int)(image.size().height * ratio));
 		dest_image = Mat(tmp_size, CV_32S);
@@ -352,8 +430,7 @@ PHP_FUNCTION(tclip)
 
 	result = detectFace( dest_image TSRMLS_CC);
 
-	if (result == -1)
-	{
+	if (result == -1) {
     	result = detectCharacter( dest_image TSRMLS_CC);
 	}
 
@@ -361,12 +438,9 @@ PHP_FUNCTION(tclip)
 
 	ratio_width = (float)dest_width / image.size().width;
 	ratio_height = (float)dest_height / image.size().height;
-	if (ratio_width > ratio_height)
-	{
+	if (ratio_width > ratio_height) {
 		ratio = ratio_width;
-	}
-	else
-	{
+	} else {
 		ratio = ratio_height;
 	}
 
@@ -376,15 +450,13 @@ PHP_FUNCTION(tclip)
 	dest_image = Mat(tmp_size, CV_32S);
 	resize(image, dest_image, tmp_size);
 
-	if (ratio_width > ratio_height) //原图片 宽度小于高度
-	{
-		if (result == -1)
-		{
+	//原图片 宽度小于高度
+	if (ratio_width > ratio_height) {
+		if (result == -1) {
 			clip_top = -((dest_image.size().height - dest_height) / 2);
 			clip_bottom = clip_top;
-		}else {
-			if (dest_image.size().height - result >= dest_height)
-			{
+		} else {
+			if (dest_image.size().height - result >= dest_height) {
 				clip_top = -result;
 				clip_bottom = -(dest_image.size().height - result - dest_height);
 			} else {
@@ -399,17 +471,17 @@ PHP_FUNCTION(tclip)
 	dest_image.adjustROI(clip_top, clip_bottom, clip_left, clip_right); //Mat& Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
 	
 	if (watermark_text_len > 0) {
-        putText(dest_image, watermark_text , Point(10, dest_image.rows-20), CV_FONT_HERSHEY_SIMPLEX, 0.8f, CV_RGB(255,255,255), 2);
+		if (point_x == 0 && point_y == 0) {
+			point_x = 10;
+			point_y = dest_image.rows - 20;
+		}
+        putText(dest_image, watermark_text , Point(point_x, point_y), font, font_scale, CV_RGB(color_r, color_g, color_b), thickness);
     }    
 	
-	try
-	{
+	try {
 		imwrite(dest_path, dest_image);
-
-	}
-	catch (exception &e)
-	{
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, e.what());
+	} catch (exception &e) {
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", e.what());
 		RETURN_FALSE;
 	}
 	

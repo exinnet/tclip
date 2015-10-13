@@ -56,7 +56,35 @@ $height = 200;
 $watermark_text = ""; //可选
 $ret = tclip($source_file, $dest_file, $width, $height, $watermark_text);
 裁剪成功 $ret 为 true，裁剪失败 $ret 为false
+
+高级功能
+$watermark_text = array(
+   'text'  => 'xingqiba_arr',
+   'font'  => 7,   //0-7
+   'x'     => $width - 200,
+   'y'     => $height - 20,
+   'red'   => 100,
+   'green' => 50,
+   'blue'  => 255,
+   'scale' => 0.8,
+   'thickness' => 2,
+);
+
+$ret = tclip($source_file, $dest_file, $width, $height, $watermark_text);
 ```
+
+#####font设置范围为0-7，具体请参考
+```
+#define CV_FONT_HERSHEY_SIMPLEX         0
+#define CV_FONT_HERSHEY_PLAIN           1
+#define CV_FONT_HERSHEY_DUPLEX          2
+#define CV_FONT_HERSHEY_COMPLEX         3
+#define CV_FONT_HERSHEY_TRIPLEX         4
+#define CV_FONT_HERSHEY_COMPLEX_SMALL   5
+#define CV_FONT_HERSHEY_SCRIPT_SIMPLEX  6
+#define CV_FONT_HERSHEY_SCRIPT_COMPLEX  7
+```
+
 
 ####cli
 ```
