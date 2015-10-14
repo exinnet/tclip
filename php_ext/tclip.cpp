@@ -39,6 +39,7 @@ extern "C"{
 #include "php_tclip.h"
 
 #include <iostream>
+#include <sstream>
 #include <map>
 #include <math.h>
 
@@ -117,6 +118,18 @@ static inline int tclip_zend_hash_find(HashTable *ht, char *k, int len, void **v
         *v = NULL;
         return FAILURE;
     }
+}
+
+static inline void convert_color_hex2rgb(const char *color_str, int* r, int* g, int* b) {
+	std::string color_raw(color_str);
+
+	if (color_raw.at(0) == '#') {
+		color_raw = color_raw.erase(0, 1);
+	}
+
+	std::istringstream(color_raw.substr(0,2)) >> std::hex >> *r;
+	std::istringstream(color_raw.substr(2,2)) >> std::hex >> *g;
+	std::istringstream(color_raw.substr(4,2)) >> std::hex >> *b;
 }
 
 /* }}} */
@@ -327,7 +340,7 @@ PHP_FUNCTION(tclip)
 	zval *z_watermark_cfg = NULL;
 	HashTable *h_watermark_cfg;
 	zval *z_tmp_v = NULL;
-	int font = 0, point_x = 0, point_y = 0, watermark_text_len = 0, color_r = 255, color_g = 255, color_b = 255, thickness = 2;
+	int font = 0, point_x = 0, point_y = 0, watermark_text_len = 0, color_r = 255, color_g = 255, color_b = 255, thickness = 2,used_color = 0;
 	double font_scale = 0.8f;
 
 
@@ -377,18 +390,44 @@ PHP_FUNCTION(tclip)
 					convert_to_double(z_tmp_v);
 					font_scale = (double)Z_DVAL_P(z_tmp_v);
 				}
+				//color
+				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("color"), (void **) &z_tmp_v) == SUCCESS) {
+					convert_to_string(z_tmp_v);
+					if (Z_STRLEN_P(z_tmp_v) == 7) {
+						used_color = 1;
+						convert_color_hex2rgb(Z_STRVAL_P(z_tmp_v), &color_r, &color_g, &color_b);
+					}
+				}
 				//r g b
-				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("red"), (void **) &z_tmp_v) == SUCCESS) {
+				if (0 == used_color && tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("red"), (void **) &z_tmp_v) == SUCCESS) {
 					convert_to_long(z_tmp_v);
 					color_r = (int) Z_LVAL_P(z_tmp_v);
+					if (color_r > 255) {
+						color_r = 255;
+					}
+					if (color_r < 0) {
+						color_r = 0;
+					}
 				}
-				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("green"), (void **) &z_tmp_v) == SUCCESS) {
+				if (0 == used_color && tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("green"), (void **) &z_tmp_v) == SUCCESS) {
 					convert_to_long(z_tmp_v);
 					color_g = (int) Z_LVAL_P(z_tmp_v);
+					if (color_g > 255) {
+						color_g = 255;
+					}
+					if (color_g < 0) {
+						color_g = 0;
+					}
 				}
-				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("blue"), (void **) &z_tmp_v) == SUCCESS) {
+				if (0 == used_color && tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("blue"), (void **) &z_tmp_v) == SUCCESS) {
 					convert_to_long(z_tmp_v);
 					color_b = (int) Z_LVAL_P(z_tmp_v);
+					if (color_b > 255) {
+						color_b = 255;
+					}
+					if (color_b < 0) {
+						color_b = 0;
+					}
 				}
 				//thickness
 				if (tclip_zend_hash_find(h_watermark_cfg, ZEND_STRS("thickness"), (void **) &z_tmp_v) == SUCCESS) {

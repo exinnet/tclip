@@ -59,15 +59,20 @@ $ret = tclip($source_file, $dest_file, $width, $height, $watermark_text);
 
 高级功能
 $watermark_text = array(
-   'text'  => 'xingqiba_arr',
-   'font'  => 7,   //0-7
-   'x'     => $width - 200,
-   'y'     => $height - 20,
-   'red'   => 100,
-   'green' => 50,
-   'blue'  => 255,
-   'scale' => 0.8,
-   'thickness' => 2,
+   'text' => 'xingqiba',
+   //以下参数均可选   
+   'font' => 7,   //0-7 默认0
+   //左上角坐标0 0
+   'x' => $width - 200,  //默认10
+   'y' => $height - 20,  //默认高度 - 20
+   'color' => '#cc00ff', //默认#ffffff 指定时长度7
+   //也可以选用red,green,blue方式分别指定
+   'red' => 204,
+   'green' => 0,
+   'blue' => 255,
+   //厚度
+   'thickness' => 2,  //默认1
+   'scale' => 0.8     //默认0.8
 );
 
 $ret = tclip($source_file, $dest_file, $width, $height, $watermark_text);
