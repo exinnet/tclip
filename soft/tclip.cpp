@@ -9,6 +9,7 @@
 #include "opencv2/nonfree/nonfree.hpp"
 
 #include <iostream>
+#include <sstream>
 #include <map>
 #include <math.h>
 #include <time.h>
@@ -164,15 +165,33 @@ int detectCharacter( Mat img ){
 
 void show_help() {
     cout << "Usage: tclip [options] [-s] <source_file> [--] [args...]" << endl;
-	cout << "-s<path>	the path of source file" << endl;
-	cout << "-d<path>	the path of destination file" << endl;
-	cout << "-w<int>		the width of destination file. default value is 300" << endl;
-	cout << "-h<int>		the height of destination file. default value is 180" << endl;
-	cout << "-c<path>	the path of config file." << endl;
-	cout << "		default path is /usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml" << endl;
-	cout << "-t<string>	the watermark text." << endl;
-	cout << "-m		open debug model" << endl;
-}    
+	cout << "-s<path>   the path of source file" << endl;
+	cout << "-d<path>   the path of destination file" << endl;
+	cout << "-w<int>    the width of destination file. default value is 300" << endl;
+	cout << "-h<int>    the height of destination file. default value is 180" << endl;
+	cout << "-c<path>   the path of config file." << endl;
+	cout << "           default path is /usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml" << endl;
+	cout << "-t<string> the watermark text." << endl;
+	cout << "-C<string> the watermark text color default value is #ffffff." << endl;
+	cout << "-F<int>    the watermark text font(0-7) default value is 0." << endl;
+	cout << "-X<int>    the watermark text position x default value is 20." << endl;
+	cout << "-Y<int>    the watermark text position y default value is height - 20." << endl;
+	cout << "-T<int>    the watermark text thinkness default value is 1." << endl;
+	cout << "-S<int>    the watermark text scale default value is 0.8." << endl;
+	cout << "-m         open debug model" << endl;
+}
+
+void convert_color_hex2rgb(const char *color_str, int* r, int* g, int* b) {
+	std::string color_raw(color_str);
+
+	if (color_raw.at(0) == '#') {
+		color_raw = color_raw.erase(0, 1);
+	}
+
+	std::istringstream(color_raw.substr(0,2)) >> std::hex >> *r;
+	std::istringstream(color_raw.substr(2,2)) >> std::hex >> *g;
+	std::istringstream(color_raw.substr(4,2)) >> std::hex >> *b;
+}
 
 int main(int argc, char** argv)
 {
@@ -200,8 +219,18 @@ int main(int argc, char** argv)
 	int result = 0;
 	int param;
 
-	while( (param = getopt(argc, argv, "Hms:d:c:w:h:t:")) != -1 )
-	{
+	//文字水印参数
+	string watermark_text_color = "#ffffff";
+	int watermark_text_color_red = 255;
+	int watermark_text_color_green = 255;
+	int watermark_text_color_blue = 255;
+	int watermark_text_font = 0;  //参考core_c.h #define CV_FONT_HERSHEY_{XXXXXX}
+	int watermark_text_x = 0;
+	int watermark_text_y = 0;
+	int watermark_text_thickness = 1;
+	double watermark_text_scale = 0.8f;
+
+	while ((param = getopt(argc, argv, "Hms:d:c:w:h:t:C:F:X:Y:T:S:")) != -1 ) {
 		if ( param == 's' ) {
 			source_path = optarg;
 		}else if ( param == 'd' ) {
@@ -212,26 +241,73 @@ int main(int argc, char** argv)
 			config_path = optarg;
 		}else if ( param == 'w' ) {
 			sscanf (optarg, "%d", &dest_width);
-		}else if ( param == 't' ) {
-			watermark_text = optarg;
 		}else if ( param == 'h' ) {
 			sscanf (optarg, "%d", &dest_height);
+		}else if ( param == 't' ) {
+			watermark_text = optarg;
+		}else if ( param == 'C' ) {
+			watermark_text_color = optarg;
+			convert_color_hex2rgb(watermark_text_color.c_str(), &watermark_text_color_red, &watermark_text_color_green, &watermark_text_color_blue);
+		}else if ( param == 'F' ) {
+			sscanf (optarg, "%d", &watermark_text_font);
+		}else if ( param == 'X' ) {
+			sscanf (optarg, "%d", &watermark_text_x);
+		}else if ( param == 'Y' ) {
+			sscanf (optarg, "%d", &watermark_text_y);
+		}else if ( param == 'T' ) {
+			sscanf (optarg, "%d", &watermark_text_thickness);
+		}else if ( param == 'S' ) {
+			sscanf (optarg, "%lf", &watermark_text_scale);
 		}else if ( param == 'H') {
 			show_help();
 			return 0;
 		}
 	}
 
-	if ( source_path == "" ||  dest_path == "" ) {
+	if ( source_path == ""
+		||  dest_path == ""
+		|| dest_width <= 0
+		|| dest_height <= 0) {
 		show_help();
 		return 1;
 	}
 	
+	if (0 == watermark_text_x
+		&& 0 == watermark_text_y) {
+		watermark_text_x = 20;
+		watermark_text_y = dest_height - 20;
+	}
+
+	printf("source_file               %s\n"
+		   "dest_file                 %s\n"
+		   "dest_file_width           %d\n"
+		   "dest_file_height          %d\n"
+		   "opencv_config_file        %s\n"
+		   "watermark_text            %s\n"
+		   "watermark_text_font       %d\n"
+		   "watermark_text_color      %s\n"
+		   "watermark_text_x          %d\n"
+		   "watermark_text_y          %d\n"
+		   "watermark_text_thickness  %d\n"
+		   "watermark_text_scale      %f\n",
+		source_path.c_str(),
+		dest_path.c_str(),
+		dest_width,
+		dest_height,
+		config_path.c_str(),
+		watermark_text.c_str(),
+		watermark_text_font,
+		watermark_text_color.c_str(),
+		watermark_text_x,
+		watermark_text_y,
+		watermark_text_thickness,
+		watermark_text_scale);
+
 	show_debug("start to read image ", "");
 	start = clock();
 
     image = imread( source_path );
-    if( !image.data ){
+    if (!image.data){
         printf("[error] do not load pic \n");
         return 1;
     }
@@ -340,7 +416,7 @@ int main(int argc, char** argv)
 	dest_image.adjustROI(clip_top, clip_bottom, clip_left, clip_right); //Mat& Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
 	
 	if (watermark_text != "") {
-	    putText(dest_image, watermark_text , Point(10, dest_image.rows-20), CV_FONT_HERSHEY_SIMPLEX, 0.8f, CV_RGB(255,255,255), 2);
+	    putText(dest_image, watermark_text , Point(watermark_text_x, watermark_text_y), watermark_text_font, watermark_text_scale, CV_RGB(watermark_text_color_red,watermark_text_color_green,watermark_text_color_blue), watermark_text_thickness);
 	}
 	
 	try {

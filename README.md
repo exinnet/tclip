@@ -94,14 +94,20 @@ $ret = tclip($source_file, $dest_file, $width, $height, $watermark_text);
 ####cli
 ```
 Usage: tclip [options] [-s] <source_file> [--] [args...]
--s<path>	the path of source file
--d<path>	the path of destination file
--w<int>		the width of destination file. default value is 300
--h<int>		the height of destination file. default value is 180
--c<path>	the path of config file.
-		default path is /usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml
--t<string>	the watermark text.
--m		open debug model
+-s<path>   the path of source file
+-d<path>   the path of destination file
+-w<int>    the width of destination file. default value is 300
+-h<int>    the height of destination file. default value is 180
+-c<path>   the path of config file.
+           default path is /usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml
+-t<string> the watermark text.
+-C<string> the watermark text color default value is #ffffff.
+-F<int>    the watermark text font(0-7) default value is 0.
+-X<int>    the watermark text position x default value is 20.
+-Y<int>    the watermark text position y default value is height - 20.
+-T<int>    the watermark text thinkness default value is 1.
+-S<int>    the watermark text scale default value is 0.8.
+-m         open debug model
 ```
 
 ###contact
