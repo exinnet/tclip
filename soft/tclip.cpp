@@ -250,6 +250,9 @@ int main(int argc, char** argv)
 			convert_color_hex2rgb(watermark_text_color.c_str(), &watermark_text_color_red, &watermark_text_color_green, &watermark_text_color_blue);
 		}else if ( param == 'F' ) {
 			sscanf (optarg, "%d", &watermark_text_font);
+			if (watermark_text_font < 0 || watermark_text_font > 7) {
+				watermark_text_font = 0;
+			}
 		}else if ( param == 'X' ) {
 			sscanf (optarg, "%d", &watermark_text_x);
 		}else if ( param == 'Y' ) {
@@ -267,7 +270,11 @@ int main(int argc, char** argv)
 	if ( source_path == ""
 		||  dest_path == ""
 		|| dest_width <= 0
-		|| dest_height <= 0) {
+		|| dest_height <= 0
+		|| watermark_text_x < 0
+		|| watermark_text_y < 0
+		|| watermark_text_x >= dest_width
+		|| watermark_text_y >= dest_height) {
 		show_help();
 		return 1;
 	}
