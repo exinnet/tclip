@@ -1,7 +1,5 @@
 # Tclip
 
-[TOC]
-
 ## 名字说明
 
 **T开头**，代表是头像识别。  
@@ -141,6 +139,12 @@ grep tclip.so php.ini||echo 'extension = tclip.so' >> php.ini
 
 ```
 /etc/init.d/php-fpm restart
+```
+
+**检查是否安装成功**
+
+```
+php -m|grep tclip
 ```
 
 ### 安装命令行
