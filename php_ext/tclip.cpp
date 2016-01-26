@@ -42,25 +42,27 @@ extern "C"{
 #include <sstream>
 #include <map>
 #include <math.h>
+#include <string>
 
 using namespace cv;
 using namespace std;
 
-/* If you declare any globals in php_tclip.h uncomment this:*/
 ZEND_DECLARE_MODULE_GLOBALS(tclip)
 
-
-/* True global resources - no need for thread safety here */
 static int le_tclip;
 static CascadeClassifier face_cascade;
 
+#if PHP_MAJOR_VERSION < 7
+#define tcp_size_t int
+#else
+#define tcp_size_t size_t
+#endif
+
 
 /* {{{ tclip_functions[]
- *
- * Every user visible function must have an entry in tclip_functions[].
  */
 zend_function_entry tclip_functions[] = {
-	PHP_FE(tclip,	NULL)		/* For testing, remove later. */
+	PHP_FE(tclip,	NULL)
 	{NULL,NULL,NULL}	/* Must be the last line in tclip_functions[] */
 };
 /* }}} */
@@ -68,19 +70,15 @@ zend_function_entry tclip_functions[] = {
 /* {{{ tclip_module_entry
  */
 zend_module_entry tclip_module_entry = {
-#if ZEND_MODULE_API_NO >= 20010901
 	STANDARD_MODULE_HEADER,
-#endif
 	"tclip",
 	tclip_functions,
 	PHP_MINIT(tclip),
 	PHP_MSHUTDOWN(tclip),
-	PHP_RINIT(tclip),		/* Replace with NULL if there's nothing to do at request start */
-	PHP_RSHUTDOWN(tclip),	/* Replace with NULL if there's nothing to do at request end */
+	PHP_RINIT(tclip),
+	PHP_RSHUTDOWN(tclip),
 	PHP_MINFO(tclip),
-#if ZEND_MODULE_API_NO >= 20010901
-	"0.1", /* Replace with version number for your extension */
-#endif
+	PHP_TCLIP_VERSION,
 	STANDARD_MODULE_PROPERTIES
 };
 /* }}} */
@@ -93,9 +91,8 @@ END_EXTERN_C()
 
 /* {{{ PHP_INI
  */
-/* Remove comments and fill if you need to have entries in php.ini*/
 PHP_INI_BEGIN()
-    STD_PHP_INI_ENTRY("tclip.face_config_path", "", PHP_INI_ALL, OnUpdateString, face_config_path, zend_tclip_globals, tclip_globals)
+    STD_PHP_INI_ENTRY("tclip.face_config_path", "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml", PHP_INI_ALL, OnUpdateString, face_config_path, zend_tclip_globals, tclip_globals)
 PHP_INI_END()
 
 /* }}} */
@@ -110,6 +107,7 @@ static void php_tclip_init_globals(zend_tclip_globals *tclip_globals)
 }
 
 static inline int tclip_zend_hash_find(HashTable *ht, char *k, int len, void **v) {
+#if PHP_MAJOR_VERSION < 7
     zval **tmp = NULL;
     if (zend_hash_find(ht, k, len, (void **) &tmp) == SUCCESS) {
         *v = *tmp;
@@ -118,6 +116,16 @@ static inline int tclip_zend_hash_find(HashTable *ht, char *k, int len, void **v
         *v = NULL;
         return FAILURE;
     }
+#else
+    zval *value = zend_hash_str_find(ht, k, len);
+    if (value == NULL) {
+    	*v = NULL;
+        return FAILURE;
+    } else {
+    	*v = (void *)value;
+        return SUCCESS;
+    }
+#endif
 }
 
 static inline void convert_color_hex2rgb(const char *color_str, int* r, int* g, int* b) {
@@ -138,15 +146,15 @@ static inline void convert_color_hex2rgb(const char *color_str, int* r, int* g, 
  */
 PHP_MINIT_FUNCTION(tclip)
 {
-	/* If you have INI entries, uncomment these lines */
 	REGISTER_INI_ENTRIES();
-	
-	string face_config_path = (TCLIP_G(face_config_path) == "" || TCLIP_G(face_config_path) == NULL)? "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml" :TCLIP_G(face_config_path);
-	if( !face_cascade.load( face_config_path ) ){ 
+
+	string face_config_path = 0 == strlen(TCLIP_G(face_config_path)) ? "" : TCLIP_G(face_config_path);
+	if (!face_cascade.load( face_config_path ) ){
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "can not load classifier file！%s", face_config_path.c_str());
         return FAILURE; 
     }
 	TCLIP_G(face_cascade) = &face_cascade;
+
 	return SUCCESS;
 }
 /* }}} */
@@ -186,11 +194,10 @@ PHP_MINFO_FUNCTION(tclip)
 {
 	php_info_print_table_start();
 	php_info_print_table_header(2, "tclip support", "enabled");
+	php_info_print_table_header(2, "version", PHP_TCLIP_VERSION);
 	php_info_print_table_end();
 
-	/* Remove comments if you have entries in php.ini	*/
 	DISPLAY_INI_ENTRIES();
-
 }
 /* }}} */
 
@@ -322,7 +329,7 @@ PHP_FUNCTION(tclip)
 {
 	char *source_path = NULL;
 	char *dest_path = NULL;
-	int source_len, dest_len;
+	tcp_size_t source_len, dest_len;
 	long dest_height, dest_width;
 	int result = 0;
 	Mat image;
@@ -339,10 +346,9 @@ PHP_FUNCTION(tclip)
 	char *watermark_text = NULL;
 	zval *z_watermark_cfg = NULL;
 	HashTable *h_watermark_cfg;
-	zval *z_tmp_v = NULL;
+	zval *z_tmp_v;
 	int font = 0, point_x = 0, point_y = 0, watermark_text_len = 0, color_r = 255, color_g = 255, color_b = 255, thickness = 2,used_color = 0;
 	double font_scale = 0.8f;
-
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, 
 	    "ssll|z",
