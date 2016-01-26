@@ -117,7 +117,7 @@ static inline int tclip_zend_hash_find(HashTable *ht, char *k, int len, void **v
         return FAILURE;
     }
 #else
-    zval *value = zend_hash_str_find(ht, k, len);
+    zval *value = zend_hash_str_find(ht, k, len - 1);
     if (value == NULL) {
     	*v = NULL;
         return FAILURE;
