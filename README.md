@@ -19,7 +19,7 @@ Tclip，意为自动头像识别的图片裁剪项目。<br/>
 
 效果演示
 -----------------------
-###人物效果演示
+### 人物效果演示
 原图<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/a1.jpg "github")
 <br/><br/>
@@ -29,7 +29,7 @@ Tclip，意为自动头像识别的图片裁剪项目。<br/>
 使用tclip裁剪图片效果如下：<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/a3.jpg "github")
 <br/>
-###景物效果演示
+### 景物效果演示
 原图<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/b1.jpg "github")
 <br/><br/>
@@ -40,20 +40,20 @@ Tclip，意为自动头像识别的图片裁剪项目。<br/>
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/b3.jpg "github")
 <br/>
 <br/>
-###水印效果
+### 水印效果
 ![github](https://raw.github.com/exinnet/tclip/master/demo_images/a1_dest_watermark.jpg "github")
 <br/>
 <br/>
-###在线演示
+### 在线演示
 演示地址：[http://demo.bo56.com/tclip](http://demo.bo56.com/tclip)
 <br/>
 <br/>
 安装步骤：
 --------------
-###源码下载<br/>
+### 源码下载<br/>
 opencv2 下载地址  [http://www.bo56.com/tclip人脸识别图片裁剪/#download](http://www.bo56.com/tclip%E4%BA%BA%E8%84%B8%E8%AF%86%E5%88%AB%E5%9B%BE%E7%89%87%E8%A3%81%E5%89%AA/#download) (建议opencv2.4.4版本) 
 <br/>
-###安装opencv2 <br/>
+### 安装opencv2 <br/>
 此扩展依赖于opencv2.0 之上版本。因此安装前先安装opencv。opencv的安装步骤如下<br/>
 yum install gtk+ gtk+-devel pkgconfig libpng zlib libjpeg libtiff cmake <br/>
 下载 opencv2 安装包 <br/>
@@ -69,7 +69,7 @@ source /etc/profile <br/>
 echo "/usr/local/lib/" > /etc/ld.so.conf.d/opencv.conf <br/>
 ldconfig <br/>
 <br/>
-###安装tclip扩展<br/>
+### 安装tclip扩展<br/>
 cd 到源代码目录中的php_ext文件夹 <br/>
 phpize <br/>
 ./configure <br/>
@@ -77,7 +77,7 @@ make <br/>
 cp modules/tclip.so 到 extension 目录 <br/>
 修改php.ini。加入 extension=tclip.so <br/>
 重启fpm <br/>
-###安装命令行<br/>
+### 安装命令行<br/>
 如果想使用命令行方式，可以进行如下安装<br/>
 cd 进入安装包soft文件夹内<br/>
 chmod +x ./tclip.sh <br/>
